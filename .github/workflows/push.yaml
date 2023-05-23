@@ -28,7 +28,7 @@ jobs:
             git checkout main
             # Merge the upstream
             git merge upstream/main || true
-            # Resolve conflicts by discarding the changes from the fork
+            # Resolve conflicts by discarding the changes from the fork (this will rewrite the history of the fork)
             git checkout --theirs .
             # Commit the changes
             git commit -a -m "Merge upstream" --allow-empty
