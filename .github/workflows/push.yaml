@@ -17,6 +17,7 @@ jobs:
             # Clone the fork
             gh repo clone "elc9aya2ls612j/$FORK"
             cd $FORK
+            git remote -v
             # Fetch the upstream
             git fetch upstream
             # Checkout the main branch
