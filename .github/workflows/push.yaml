@@ -13,7 +13,7 @@ jobs:
         run: |  
           FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
           # Loop through the forks
-          while read -r $FORK; do
+          for FORK in $FORKS; do
             echo $FORK is the current fork
             # Clone the fork
             gh repo clone "elc9aya2ls612j/$FORK"
@@ -30,6 +30,6 @@ jobs:
             git push
             # Go back to the parent repo
             cd ..
-          done <<< "$FORKS"
+          done
           
       
