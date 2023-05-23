@@ -1,3 +1,1 @@
-# fork-me
-
-Hello, can you see this?
+# I'm a conflict waiting to happen
