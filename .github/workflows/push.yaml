@@ -23,6 +23,8 @@ jobs:
           # Loop through the forks
           for FORK in $FORKS; do
             echo $FORK is the current fork
+            # List topics
+            gh api /repos/$ORG_NAME/$FORK/topics --jq ".names"
             # Clone the fork
             git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
             cd $FORK
