@@ -8,6 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: List Forks of current repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
           # Loop through the forks
