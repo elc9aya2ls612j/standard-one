@@ -1,1 +1,1 @@
-# Should always stay the same across standard and custom
+# should always be the same - Standard and Custom
