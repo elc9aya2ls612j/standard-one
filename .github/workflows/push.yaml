@@ -9,6 +9,7 @@ jobs:
       - name: List Forks of current repo
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          NEVER_OVERWRITE: README.md
         run: |  
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
@@ -28,6 +29,12 @@ jobs:
             git checkout main
             # Merge the upstream
             git merge upstream/main || true
+
+            # All and globs listed in $NEVER_OVERWRITE will be kept as they are
+            for FILE in $NEVER_OVERWRITE; do
+              git checkout --ours $FILE
+            done
+
             # Resolve conflicts by discarding the changes from the fork (this will rewrite the history of the fork)
             git checkout --theirs .
             # Commit the changes
