@@ -11,9 +11,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
+          gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name'
           # Loop through the forks
-          for fork in $FORKS; do
+          for fork in $(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name'); do
             # Clone the fork
             gh repo clone elc9aya2ls612j/$FORK
             # Add the upstream remote
