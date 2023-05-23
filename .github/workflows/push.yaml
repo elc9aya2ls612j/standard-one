@@ -37,7 +37,7 @@ jobs:
             # List all the remaining conflicts
             CONFLICTS=$(git diff --name-only --diff-filter=U)
             # If there are conflicts, loop over them
-            for $CONFLICT in $CONFLICTS; do
+            for CONFLICT in $CONFLICTS; do
               # If the file is in $NEVER_OVERWRITE, skip it
               if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
                 echo $CONFLICT is in NEVER_OVERWRITE, skipping
