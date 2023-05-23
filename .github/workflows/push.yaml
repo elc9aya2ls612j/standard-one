@@ -6,7 +6,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and push
+      - uses: actions/checkout@v3
+      - name: List Forks of current repo
         run: |
-          echo "Hello world"
+          FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
+          # Loop through the forks
+          for fork in $FORKS; do
+            # Clone the fork
+            gh repo clone $FORK
+            # Add the upstream remote
+            cd $FORK
+            git remote add upstream
+            # Fetch the upstream
+            git fetch upstream
+            # Checkout the main branch
+            git checkout main
+            # Merge the upstream
+            git merge upstream/main
+            # Push the changes
+            git push
+            # Go back to the parent repo
+            cd ..
+          done
+          
+      
