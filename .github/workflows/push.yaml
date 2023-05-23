@@ -15,7 +15,7 @@ jobs:
           # Loop through the forks
           while read -r $FORK; do
             # Clone the fork
-            gh repo clone elc9aya2ls612j/$FORK
+            gh repo clone "elc9aya2ls612j/$FORK"
             # Add the upstream remote
             cd $FORK
             git remote add upstream https://github.com/elc9aya2ls612j/fork-me.git
