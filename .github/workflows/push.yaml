@@ -31,7 +31,7 @@ jobs:
             # Resolve conflicts by discarding the changes from the fork
             git checkout --theirs .
             # Commit the changes
-            git commit -m "Merge upstream" --allow-empty
+            git commit -a -m "Merge upstream" --allow-empty
             # Push the changes
             git push
             # Go back to the parent repo
