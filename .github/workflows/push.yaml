@@ -14,6 +14,7 @@ jobs:
           FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
           # Loop through the forks
           while read -r $FORK; do
+            echo $FORK is the current fork
             # Clone the fork
             gh repo clone "elc9aya2ls612j/$FORK"
             # Add the upstream remote
