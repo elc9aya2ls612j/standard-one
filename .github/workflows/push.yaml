@@ -11,7 +11,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NEVER_OVERWRITE: README.md src/theme.css fstab.yaml
           ALWAYS_OVERWRITE: src/lib-franklin.js
-        run: |  
+        run: |
+          # Set variables
+          ORG_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 1)
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 2)
+          echo $ORG_NAME is the org name
+          echo $REPO_NAME is the repo name
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
           FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
