@@ -9,7 +9,7 @@ jobs:
       - name: List Forks of current repo
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NEVER_OVERWRITE: README.md src/theme.css
+          NEVER_OVERWRITE: README.md src/theme.css fstab.yaml
         run: |  
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
