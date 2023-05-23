@@ -10,6 +10,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NEVER_OVERWRITE: README.md src/theme.css fstab.yaml
+          ALWAYS_OVERWRITE: src/lib-franklin.js
         run: |  
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
@@ -30,10 +31,16 @@ jobs:
             # Merge the upstream
             git merge upstream/main || true
 
-            # All and globs listed in $NEVER_OVERWRITE will be kept as they are
+            # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
             for FILE in $NEVER_OVERWRITE; do
               git checkout --ours $FILE || true
             done
+
+            # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
+            for FILE in $ALWAYS_OVERWRITE; do
+              git checkout --theirs $FILE || true
+            done
+
             # List all the remaining conflicts
             CONFLICTS=$(git diff --name-only --diff-filter=U)
             # If there are conflicts, loop over them
