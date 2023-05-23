@@ -19,16 +19,16 @@ jobs:
           echo $REPO_NAME is the repo name
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
-          FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
+          FORKS=$(gh repo list $ORG_NAME --json parent,name -q '.[] | select(.parent != null and .parent.name == "'$REPO_NAME'") | .name')
           # Loop through the forks
           for FORK in $FORKS; do
             echo $FORK is the current fork
             # Clone the fork
-            git  clone "https://$GITHUB_TOKEN@github.com/elc9aya2ls612j/$FORK"
+            git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
             cd $FORK
             git remote -v
             # Add the upstream
-            git remote add upstream "https://$GITHUB_TOKEN@github.com/elc9aya2ls612j/fork-me"
+            git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/fork-me"
             # Fetch the upstream
             git fetch upstream
             # Checkout the main branch
