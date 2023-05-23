@@ -34,9 +34,18 @@ jobs:
             for FILE in $NEVER_OVERWRITE; do
               git checkout --ours $FILE
             done
+            # List all the remaining conflicts
+            CONFLICTS=$(git diff --name-only --diff-filter=U)
+            # If there are conflicts, loop over them
+            for $CONFLICT in $CONFLICTS; do
+              # If the file is in $NEVER_OVERWRITE, skip it
+              if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
+                continue
+              fi
+              # If the file is not in $NEVER_OVERWRITE, use ours
+              git checkout --ours $CONFLICT
+            done
 
-            # Resolve conflicts by discarding the changes from the fork (this will rewrite the history of the fork)
-            git checkout --theirs .
             # Commit the changes
             git commit -a -m "Merge upstream" --allow-empty
             # Push the changes
