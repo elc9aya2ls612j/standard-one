@@ -20,6 +20,12 @@ jobs:
           REF_NAME=$(git rev-parse --short HEAD)
           echo $ORG_NAME is the org name
           echo $REPO_NAME is the repo name
+          echo $REF_NAME is the ref name
+
+          # forget that we have a checkout of the repo
+          rm -rf .git .github *
+          ls -la
+
           git config --global user.name "Lars (Forking) Trieloff"
           git config --global user.email "lars@trieloff.net"
           FORKS=$(gh repo list $ORG_NAME --json parent,name -q '.[] | select(.parent != null and .parent.name == "'$REPO_NAME'") | .name')
@@ -82,7 +88,7 @@ jobs:
                 # Push the changes
                 git push --set-upstream origin "merge-$REF_NAME"
                 # Create a PR
-                gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site" --base main --head "merge-$REF_NAME"
+                gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site" -R $ORG_NAME/$FORK
               fi
             else
               echo $FORK is a Standard site, merging agressively
