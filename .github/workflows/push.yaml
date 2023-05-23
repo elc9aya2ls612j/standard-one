@@ -40,10 +40,12 @@ jobs:
             for $CONFLICT in $CONFLICTS; do
               # If the file is in $NEVER_OVERWRITE, skip it
               if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
+                echo $CONFLICT is in NEVER_OVERWRITE, skipping
                 continue
               fi
-              # If the file is not in $NEVER_OVERWRITE, use ours
-              git checkout --ours $CONFLICT
+              echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
+              # Checkout the upstream version
+              git checkout --theirs $CONFLICT
             done
 
             # Commit the changes
