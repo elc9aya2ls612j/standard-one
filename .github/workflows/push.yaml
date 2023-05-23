@@ -10,6 +10,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |  
+          git config --global user.name "Lars (Forking) Trieloff"
+          git config --global user.email "lars@trieloff.net"
           FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
           # Loop through the forks
           for FORK in $FORKS; do
