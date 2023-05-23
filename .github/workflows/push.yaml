@@ -25,49 +25,56 @@ jobs:
             echo $FORK is the current fork
             # List topics
             gh api /repos/$ORG_NAME/$FORK/topics --jq ".names"
-            # Clone the fork
-            git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
-            cd $FORK
-            git remote -v
-            # Add the upstream
-            git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/fork-me"
-            # Fetch the upstream
-            git fetch upstream
-            # Checkout the main branch
-            git checkout main
-            # Merge the upstream
-            git merge upstream/main || true
+            # if the fork has the topic "custom", skip it
+            if gh api /repos/$ORG_NAME/$FORK/topics --jq ".names" | grep -q custom; then
+              echo $FORK is a custom site, creating a PR
+              continue
+            else
+              echo $FORK is a Standard site, merging agressively
+              # Clone the fork
+              git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
+              cd $FORK
+              git remote -v
+              # Add the upstream
+              git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/fork-me"
+              # Fetch the upstream
+              git fetch upstream
+              # Checkout the main branch
+              git checkout main
+              # Merge the upstream
+              git merge upstream/main || true
 
-            # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
-            for FILE in $NEVER_OVERWRITE; do
-              git checkout --ours $FILE || true
-            done
+              # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
+              for FILE in $NEVER_OVERWRITE; do
+                git checkout --ours $FILE || true
+              done
 
-            # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
-            for FILE in $ALWAYS_OVERWRITE; do
-              git checkout --theirs $FILE || true
-            done
+              # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
+              for FILE in $ALWAYS_OVERWRITE; do
+                git checkout --theirs $FILE || true
+              done
 
-            # List all the remaining conflicts
-            CONFLICTS=$(git diff --name-only --diff-filter=U)
-            # If there are conflicts, loop over them
-            for CONFLICT in $CONFLICTS; do
-              # If the file is in $NEVER_OVERWRITE, skip it
-              if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
-                echo $CONFLICT is in NEVER_OVERWRITE, skipping
-                continue
-              fi
-              echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
-              # Checkout the upstream version
-              git checkout --theirs $CONFLICT
-            done
+              # List all the remaining conflicts
+              CONFLICTS=$(git diff --name-only --diff-filter=U)
+              # If there are conflicts, loop over them
+              for CONFLICT in $CONFLICTS; do
+                # If the file is in $NEVER_OVERWRITE, skip it
+                if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
+                  echo $CONFLICT is in NEVER_OVERWRITE, skipping
+                  continue
+                fi
+                echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
+                # Checkout the upstream version
+                git checkout --theirs $CONFLICT
+              done
 
-            # Commit the changes
-            git commit -a -m "Merge upstream" --allow-empty
-            # Push the changes
-            git push
-            # Go back to the parent repo
-            cd ..
+              # Commit the changes
+              git commit -a -m "Merge upstream" --allow-empty
+              # Push the changes
+              git push
+              # Go back to the parent repo
+              cd ..
+            fi
           done
           
       
