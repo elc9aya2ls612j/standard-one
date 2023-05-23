@@ -32,7 +32,7 @@ jobs:
 
             # All and globs listed in $NEVER_OVERWRITE will be kept as they are
             for FILE in $NEVER_OVERWRITE; do
-              git checkout --ours $FILE
+              git checkout --ours $FILE || true
             done
             # List all the remaining conflicts
             CONFLICTS=$(git diff --name-only --diff-filter=U)
