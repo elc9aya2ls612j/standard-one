@@ -23,7 +23,7 @@ jobs:
           echo $REF_NAME is the ref name
 
           # forget that we have a checkout of the repo
-          rm -rf .git
+          rm -rf .git .github *
           ls -la
 
           git config --global user.name "Lars (Forking) Trieloff"
