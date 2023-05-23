@@ -6,7 +6,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - name: List Forks of current repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -17,9 +16,7 @@ jobs:
             echo $FORK is the current fork
             # Clone the fork
             gh repo clone "elc9aya2ls612j/$FORK"
-            # Add the upstream remote
             cd $FORK
-            git remote add upstream https://github.com/elc9aya2ls612j/fork-me.git
             # Fetch the upstream
             git fetch upstream
             # Checkout the main branch
