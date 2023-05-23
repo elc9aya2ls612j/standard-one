@@ -15,10 +15,10 @@ jobs:
           # Loop through the forks
           for fork in $FORKS; do
             # Clone the fork
-            gh repo clone $FORK
+            gh repo clone elc9aya2ls612j/$FORK
             # Add the upstream remote
             cd $FORK
-            git remote add upstream
+            git remote add upstream https://github.com/elc9aya2ls612j/fork-me.git
             # Fetch the upstream
             git fetch upstream
             # Checkout the main branch
