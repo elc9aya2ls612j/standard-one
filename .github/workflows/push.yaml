@@ -10,10 +10,10 @@ jobs:
       - name: List Forks of current repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name'
+        run: |  
+          FORKS=$(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name')
           # Loop through the forks
-          for fork in $(gh repo list elc9aya2ls612j --json parent,name -q '.[] | select(.parent != null and .parent.name == "fork-me") | .name'); do
+          while read -r FORK in $FORKS; do
             # Clone the fork
             gh repo clone elc9aya2ls612j/$FORK
             # Add the upstream remote
@@ -29,6 +29,6 @@ jobs:
             git push
             # Go back to the parent repo
             cd ..
-          done
+          done <<< "$FORKS"
           
       
