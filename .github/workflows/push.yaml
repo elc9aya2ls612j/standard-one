@@ -88,7 +88,7 @@ jobs:
                 # Push the changes
                 git push --set-upstream origin "merge-$REF_NAME"
                 # Create a PR
-                gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site"
+                gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site" --base $FORK:main --head "$FORK:merge-$REF_NAME"
               fi
             else
               echo $FORK is a Standard site, merging agressively
