@@ -17,7 +17,7 @@ jobs:
           for FORK in $FORKS; do
             echo $FORK is the current fork
             # Clone the fork
-            gh repo clone "elc9aya2ls612j/$FORK"
+            git  clone "https://$GITHUB_TOKEN@github.com/elc9aya2ls612j/$FORK"
             cd $FORK
             git remote -v
             # Fetch the upstream
