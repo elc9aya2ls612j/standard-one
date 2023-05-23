@@ -20,6 +20,8 @@ jobs:
             git  clone "https://$GITHUB_TOKEN@github.com/elc9aya2ls612j/$FORK"
             cd $FORK
             git remote -v
+            # Add the upstream
+            git remote add upstream "https://$GITHUB_TOKEN@github.com/elc9aya2ls612j/fork-me"
             # Fetch the upstream
             git fetch upstream
             # Checkout the main branch
