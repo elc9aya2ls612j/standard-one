@@ -8,8 +8,6 @@ jobs:
     steps:
       - name: Hello
         uses: elc9aya2ls612j/push-propagator@main
-        with:
-          who-to-greet: 'Mona the Octocat'
       - name: Checkout
         uses: actions/checkout@v3
       - name: List Forks of current repo
