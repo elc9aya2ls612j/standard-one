@@ -6,136 +6,143 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: List Forks of current repo
-        env:
+      - name: Hello
+        uses: elc9aya2ls612j/push-propagator@main
+        with:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NEVER_OVERWRITE: README.md src/theme.css fstab.yaml
           ALWAYS_OVERWRITE: src/lib-franklin.js
-        run: |
-          # Set variables
-          ORG_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 1)
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 2)
-          REF_NAME=$(git rev-parse --short HEAD)
-          echo $ORG_NAME is the org name
-          echo $REPO_NAME is the repo name
-          echo $REF_NAME is the ref name
+          USER_NAME: Lars (Forking) Trieloff
+          USER_EMAIL: lars@trieloff.net
+      #- name: Checkout
+      #  uses: actions/checkout@v3
+      # - name: List Forks of current repo
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      #     NEVER_OVERWRITE: README.md src/theme.css fstab.yaml
+      #     ALWAYS_OVERWRITE: src/lib-franklin.js
+      #   run: |
+      #     # Set variables
+      #     ORG_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 1)
+      #     REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d / -f 2)
+      #     REF_NAME=$(git rev-parse --short HEAD)
+      #     echo $ORG_NAME is the org name
+      #     echo $REPO_NAME is the repo name
+      #     echo $REF_NAME is the ref name
 
-          # forget that we have a checkout of the repo
-          rm -rf .git .github *
-          ls -la
+      #     # forget that we have a checkout of the repo
+      #     rm -rf .git .github *
+      #     ls -la
 
-          git config --global user.name "Lars (Forking) Trieloff"
-          git config --global user.email "lars@trieloff.net"
-          FORKS=$(gh repo list $ORG_NAME --json parent,name -q '.[] | select(.parent != null and .parent.name == "'$REPO_NAME'") | .name')
-          # Loop through the forks
-          for FORK in $FORKS; do
-            echo $FORK is the current fork
-            # List topics
-            gh api /repos/$ORG_NAME/$FORK/topics --jq ".names"
-            # if the fork has the topic "custom", skip it
-            if gh api /repos/$ORG_NAME/$FORK/topics --jq ".names" | grep -q custom; then
-              echo $FORK is a custom site, creating a PR
-              # Clone the fork
-              git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
-              cd $FORK
-              git remote -v
-              # Add the upstream
-              git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$REPO_NAME"
-              # Fetch the upstream
-              git fetch upstream
-              # Checkout the main branch
-              git checkout main
-              # Merge the upstream
-              git merge upstream/main || true
+      #     git config --global user.name "Lars (Forking) Trieloff"
+      #     git config --global user.email "lars@trieloff.net"
+      #     FORKS=$(gh repo list $ORG_NAME --json parent,name -q '.[] | select(.parent != null and .parent.name == "'$REPO_NAME'") | .name')
+      #     # Loop through the forks
+      #     for FORK in $FORKS; do
+      #       echo $FORK is the current fork
+      #       # List topics
+      #       gh api /repos/$ORG_NAME/$FORK/topics --jq ".names"
+      #       # if the fork has the topic "custom", skip it
+      #       if gh api /repos/$ORG_NAME/$FORK/topics --jq ".names" | grep -q custom; then
+      #         echo $FORK is a custom site, creating a PR
+      #         # Clone the fork
+      #         git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
+      #         cd $FORK
+      #         git remote -v
+      #         # Add the upstream
+      #         git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$REPO_NAME"
+      #         # Fetch the upstream
+      #         git fetch upstream
+      #         # Checkout the main branch
+      #         git checkout main
+      #         # Merge the upstream
+      #         git merge upstream/main || true
 
-              # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
-              for FILE in $NEVER_OVERWRITE; do
-                git checkout --ours $FILE || true
-              done
+      #         # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
+      #         for FILE in $NEVER_OVERWRITE; do
+      #           git checkout --ours $FILE || true
+      #         done
 
-              # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
-              for FILE in $ALWAYS_OVERWRITE; do
-                git checkout --theirs $FILE || true
-              done
+      #         # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
+      #         for FILE in $ALWAYS_OVERWRITE; do
+      #           git checkout --theirs $FILE || true
+      #         done
 
-              # List all the remaining conflicts
-              CONFLICTS=$(git diff --name-only --diff-filter=U)
-              # check if there are conflicts
-              if [ -z "$CONFLICTS" ]; then
-                echo "No conflicts, committing and pushing"
-                # Commit the changes
-                git commit -a -m "Merge upstream" --allow-empty
-                # Push the changes
-                git push
-              else
-                # create a new branch, using the current ref of the parent repo
-                git checkout -b "merge-$REF_NAME"
-                # If there are conflicts, loop over them
-                for CONFLICT in $CONFLICTS; do
-                  # If the file is in $NEVER_OVERWRITE, skip it
-                  if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
-                    echo $CONFLICT is in NEVER_OVERWRITE, skipping
-                    continue
-                  fi
-                  echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
-                  # Checkout the upstream version
-                  git checkout --theirs $CONFLICT
-                done
-                # Commit the changes
-                git commit -a -m "Merge upstream" --allow-empty
-                # Push the changes
-                git push --set-upstream origin "merge-$REF_NAME"
-                # Create a PR
-                gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site" -R $ORG_NAME/$FORK
-              fi
-            else
-              echo $FORK is a Standard site, merging agressively
-              # Clone the fork
-              git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
-              cd $FORK
-              git remote -v
-              # Add the upstream
-              git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$REPO_NAME"
-              # Fetch the upstream
-              git fetch upstream
-              # Checkout the main branch
-              git checkout main
-              # Merge the upstream
-              git merge upstream/main || true
+      #         # List all the remaining conflicts
+      #         CONFLICTS=$(git diff --name-only --diff-filter=U)
+      #         # check if there are conflicts
+      #         if [ -z "$CONFLICTS" ]; then
+      #           echo "No conflicts, committing and pushing"
+      #           # Commit the changes
+      #           git commit -a -m "Merge upstream" --allow-empty
+      #           # Push the changes
+      #           git push
+      #         else
+      #           # create a new branch, using the current ref of the parent repo
+      #           git checkout -b "merge-$REF_NAME"
+      #           # If there are conflicts, loop over them
+      #           for CONFLICT in $CONFLICTS; do
+      #             # If the file is in $NEVER_OVERWRITE, skip it
+      #             if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
+      #               echo $CONFLICT is in NEVER_OVERWRITE, skipping
+      #               continue
+      #             fi
+      #             echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
+      #             # Checkout the upstream version
+      #             git checkout --theirs $CONFLICT
+      #           done
+      #           # Commit the changes
+      #           git commit -a -m "Merge upstream" --allow-empty
+      #           # Push the changes
+      #           git push --set-upstream origin "merge-$REF_NAME"
+      #           # Create a PR
+      #           gh pr create --title "Merge upstream" --body "This PR merges the upstream changes into the custom site" --base $FORK:main --head "$FORK:merge-$REF_NAME"
+      #         fi
+      #       else
+      #         echo $FORK is a Standard site, merging agressively
+      #         # Clone the fork
+      #         git  clone "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$FORK"
+      #         cd $FORK
+      #         git remote -v
+      #         # Add the upstream
+      #         git remote add upstream "https://$GITHUB_TOKEN@github.com/$ORG_NAME/$REPO_NAME"
+      #         # Fetch the upstream
+      #         git fetch upstream
+      #         # Checkout the main branch
+      #         git checkout main
+      #         # Merge the upstream
+      #         git merge upstream/main || true
 
-              # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
-              for FILE in $NEVER_OVERWRITE; do
-                git checkout --ours $FILE || true
-              done
+      #         # All files and globs listed in $NEVER_OVERWRITE will be kept as they are
+      #         for FILE in $NEVER_OVERWRITE; do
+      #           git checkout --ours $FILE || true
+      #         done
 
-              # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
-              for FILE in $ALWAYS_OVERWRITE; do
-                git checkout --theirs $FILE || true
-              done
+      #         # All files and globs listed in $ALWAYS_OVERWRITE will be overwritten by the upstream
+      #         for FILE in $ALWAYS_OVERWRITE; do
+      #           git checkout --theirs $FILE || true
+      #         done
 
-              # List all the remaining conflicts
-              CONFLICTS=$(git diff --name-only --diff-filter=U)
-              # If there are conflicts, loop over them
-              for CONFLICT in $CONFLICTS; do
-                # If the file is in $NEVER_OVERWRITE, skip it
-                if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
-                  echo $CONFLICT is in NEVER_OVERWRITE, skipping
-                  continue
-                fi
-                echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
-                # Checkout the upstream version
-                git checkout --theirs $CONFLICT
-              done
+      #         # List all the remaining conflicts
+      #         CONFLICTS=$(git diff --name-only --diff-filter=U)
+      #         # If there are conflicts, loop over them
+      #         for CONFLICT in $CONFLICTS; do
+      #           # If the file is in $NEVER_OVERWRITE, skip it
+      #           if [[ $NEVER_OVERWRITE =~ (^|[[:space:]])$CONFLICT($|[[:space:]]) ]]; then
+      #             echo $CONFLICT is in NEVER_OVERWRITE, skipping
+      #             continue
+      #           fi
+      #           echo $CONFLICT is not in NEVER_OVERWRITE, using upstream
+      #           # Checkout the upstream version
+      #           git checkout --theirs $CONFLICT
+      #         done
 
-              # Commit the changes
-              git commit -a -m "Merge upstream" --allow-empty
-              # Push the changes
-              git push
-              # Go back to the parent repo
-              cd ..
-            fi
-          done
-          
-      
+      #         # Commit the changes
+      #         git commit -a -m "Merge upstream" --allow-empty
+      #         # Push the changes
+      #         git push
+      #         # Go back to the parent repo
+      #         cd ..
+      #       fi
+      #     done
+
