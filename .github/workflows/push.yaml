@@ -14,8 +14,6 @@ jobs:
           ALWAYS_OVERWRITE: src/lib-franklin.js
           USER_NAME: Lars (Forking) Trieloff
           USER_EMAIL: lars@trieloff.net
-          REPO: ${{ github.repository }}
-          OWNER: ${{ github.repository_owner }}
       #- name: Checkout
       #  uses: actions/checkout@v3
       # - name: List Forks of current repo
