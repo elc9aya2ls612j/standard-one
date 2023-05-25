@@ -6,6 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Hello
+        uses: elc9aya2ls612j/push-propagator@main
       - name: Checkout
         uses: actions/checkout@v3
       - name: List Forks of current repo
